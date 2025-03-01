@@ -38,28 +38,24 @@ runs:
 
         if [[ "${{ inputs.format }}" == "true" ]]; then
           logger info "Running terraform fmt..."
-          logger reset
           terraform fmt -recursive
           logger success "terraform fmt check passed!"
         fi
 
         if [[ "${{ inputs.tflint }}" == "true" ]]; then
           logger info "Running tflint..."
-          logger reset
           tflint --recursive
           logger success "tflint check passed!"
         fi
 
         if [[ "${{ inputs.tfsec }}" == "true" ]]; then
           logger info "Running tfsec..."
-          logger reset
           tfsec
           logger success "tfsec check passed!"
         fi
 
         if [[ "${{ inputs.validate }}" == "true" ]]; then
           logger info "Initializing Terraform..."
-          logger reset
 
           if [[ -n "${{ inputs.personal-access-token }}" ]]; then
             git config --global url."https://github-user:${{ inputs.personal-access-token }}@github.com".insteadOf https://github.com
@@ -72,7 +68,6 @@ runs:
           fi
 
           logger info "Validating Terraform..."
-          logger reset
           terraform validate
         fi
       shell: bash
@@ -85,7 +80,7 @@ inputs:
 
   format:
     default: "true"
-    description: Whether or not to run `terraform fmt -recursive`.
+    description: Whether or not to run `terraform fmt -recursive`. Default is true.
     required: false
 
   personal-access-token:
@@ -94,17 +89,17 @@ inputs:
 
   tflint:
     default: "true"
-    description: Whether or not to run `tflint --recursive`.
+    description: Whether or not to run `tflint --recursive`. Default is true.
     required: false
 
   tfsec:
     default: "true"
-    description: Whether or not to run `tfsec`.
+    description: Whether or not to run `tfsec`. Default is true.
     required: false
 
   validate:
     default: "true"
-    description: Whether or not to run `terraform validate`.
+    description: Whether or not to run `terraform validate`. Default is true.
     required: false
 
   working-directory:
