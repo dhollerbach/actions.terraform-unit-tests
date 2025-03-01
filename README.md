@@ -1,6 +1,6 @@
 # Terraform Unit Tests
 
-GitHub action that Terraform unit tests.
+GitHub action that runs Terraform unit tests.
 
 ## Inputs
 
