@@ -1,0 +1,113 @@
+name: Terraform Unit Tests
+description: Composite action that runs Terraform unit tests.
+
+runs:
+  using: composite
+
+  steps:
+    - name: Install Terraform addons
+      run: |
+        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+        curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+      shell: bash
+
+    - name: Run Terraform Unit Tests
+      run: |
+        # Setup Logger
+
+        YELLOW="\033[33m"
+        GREEN="\033[32m"
+        RED="\033[31m"
+        BLUE="\033[34m"
+        RESET="\033[0m"
+
+        logger() {
+          case "$1" in
+            info)    COLOR=$BLUE; ICON="ℹ️";;
+            success) COLOR=$GREEN; ICON="✅";;
+            warning) COLOR=$YELLOW; ICON="⚠️";;
+            error)   COLOR=$RED; ICON="❌";;
+            *)       COLOR=$RESET; ICON="";;
+          esac
+
+          shift  # Remove the first argument
+          echo -e "${COLOR}${ICON} $@${RESET}"
+        }
+
+        # Run Terraform Unit Tests
+
+        if [[ "${{ inputs.format }}" == "true" ]]; then
+          logger info "Running terraform fmt..."
+          logger reset
+          terraform fmt -recursive
+          logger success "terraform fmt check passed!"
+        fi
+
+        if [[ "${{ inputs.tflint }}" == "true" ]]; then
+          logger info "Running tflint..."
+          logger reset
+          tflint --recursive
+          logger success "tflint check passed!"
+        fi
+
+        if [[ "${{ inputs.tfsec }}" == "true" ]]; then
+          logger info "Running tfsec..."
+          logger reset
+          tfsec
+          logger success "tfsec check passed!"
+        fi
+
+        if [[ "${{ inputs.validate }}" == "true" ]]; then
+          logger info "Initializing Terraform..."
+          logger reset
+
+          if [[ -n "${{ inputs.personal-access-token }}" ]]; then
+            git config --global url."https://github-user:${{ inputs.personal-access-token }}@github.com".insteadOf https://github.com
+          fi
+
+          if [[ -n "${{ inputs.backend-config }}" ]]; then
+            terraform init --backend-config="${{ inputs.backend-config }}"
+          else
+            terraform init
+          fi
+
+          logger info "Validating Terraform..."
+          logger reset
+          terraform validate
+        fi
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+inputs:
+  backend-config:
+    description: The backend config file to use when running `terraform init`.
+    required: false
+
+  format:
+    default: "true"
+    description: Whether or not to run `terraform fmt -recursive`.
+    required: false
+
+  personal-access-token:
+    description: The GitHub personal access token to use when running `terraform init`. Specify if any modules are stored in private repositories.
+    required: false
+
+  tflint:
+    default: "true"
+    description: Whether or not to run `tflint --recursive`.
+    required: false
+
+  tfsec:
+    default: "true"
+    description: Whether or not to run `tfsec`.
+    required: false
+
+  validate:
+    default: "true"
+    description: Whether or not to run `terraform validate`.
+    required: false
+
+  working-directory:
+    default: "."
+    description: The working directory to run tests in.
+    required: false
