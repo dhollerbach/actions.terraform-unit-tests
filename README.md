@@ -31,7 +31,7 @@ GitHub action that runs Terraform unit tests.
   with:
     terraform_version: "1.1.7"
 
-- name: Deploy CloudFront Function
+- name: Run Terraform Unit Tests
   uses: dhollerbach/actions.terraform-unit-tests@v1
 ```
 
@@ -50,7 +50,7 @@ GitHub action that runs Terraform unit tests.
   with:
     terraform_version: "1.1.7"
 
-- name: Deploy CloudFront Function
+- name: Run Terraform Unit Tests
   uses: dhollerbach/actions.terraform-unit-tests@v1
   with:
     backend-config: backend.conf
