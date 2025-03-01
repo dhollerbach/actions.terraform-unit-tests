@@ -1,5 +1,5 @@
 name: Terraform Unit Tests
-description: Composite action that runs Terraform unit tests.
+description: GitHub action that runs Terraform unit tests.
 
 runs:
   using: composite
